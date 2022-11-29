@@ -43,6 +43,7 @@
         console.log(params)
         uploadMsg.innerHTML = `Uploading ${file.name} ...`
         await upload_file_to_s3(params, file)
+        await get_bucket_files()
     }
 
 
