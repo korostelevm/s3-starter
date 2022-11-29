@@ -14,6 +14,8 @@ var options = {
 }
 app.use(express.static('public', options))
 
+// cyclic-fair-ruby-clam-cuff-us-east-1
+
 // About page route.
 router.get("/about", function (req, res) {
   res.send("About this wiki");
