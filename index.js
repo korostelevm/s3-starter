@@ -20,7 +20,7 @@ app.use(express.static("public", options));
 
 const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-const { S3Client, ListObjectsCommand } = require("@aws-sdk/client-s3");
+const { S3Client, ListObjectsCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
 
 const BUCKET_NAME = "cyclic-fair-ruby-clam-cuff-us-east-1";
 const Fields = {
@@ -28,6 +28,7 @@ const Fields = {
 };
 
 const REGION = "us-east-1";
+
 const s3 = new S3Client({ region: REGION });
 
 router.post("/presigned", async (req, res) => {
@@ -40,8 +41,28 @@ router.post("/presigned", async (req, res) => {
   return res.json({
     url,
     fields,
-  });
+  }); 
 }); 
+
+router.post("/download", async (req, res) => {
+    let key = req.body.Key
+    let download_url = await getSignedUrl(s3, new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+    })) 
+    console.log(download_url)
+    return res.send({download_url});
+});
+
+router.post("/delete", async (req, res) => {
+    let key = req.body.Key
+    let download_url = await getSignedUrl(s3, new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+    })) 
+    console.log(download_url)
+    return res.send({download_url});
+});
 
 router.get("/list_uploads", async (req, res) => {
     let bucket_data = await s3.send(new ListObjectsCommand({
