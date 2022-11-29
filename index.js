@@ -14,20 +14,36 @@ var options = {
 }
 app.use(express.static('public', options))
 
-// cyclic-fair-ruby-clam-cuff-us-east-1
 
 // About page route.
 
 
-let {S3Client} = require("@aws-sdk/client-s3")
-let { getSignedUrl } = require("@aws-sdk/s3-request-presigner")
+const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { S3Client } = require("@aws-sdk/client-s3");
+
+
+const client = new S3Client({ region: "us-west-2" });
+const Bucket = "cyclic-fair-ruby-clam-cuff-us-east-1";
+const Key = "user/eric/1";
+const Fields = {
+  acl: "public-read",
+};
+
 
 const REGION = "us-east-1";
 const s3Client = new S3Client({ region: REGION });
 
+router.post("/presigned", async (req, res)=> {
 
-router.get("/about", function (req, res) {
-  res.send("About this wiki");
+    const { url, fields } = await createPresignedPost(client, {
+        Bucket,
+        Key,
+      });
+      
+  res.json({
+    url, fields
+  });
 });
 
 

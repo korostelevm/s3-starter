@@ -3,26 +3,88 @@
 <head>
 </head>
 <body>
-Your HTML here
+    
+    <input id="imageUpload" type="file" />
+    <br />
+    <div id="uploadMsg"></div>
+    <br />
+    <button id="uploadBtn">upload</button>
+    
 
 <script>
 (function() {
+    let uploadMsg = document.getElementById("uploadMsg");
+
+    let input;
+    let imageUpload = document.getElementById("imageUpload");
+    imageUpload.onchange = function () {
+        input = this.files[0];
+        if(input){
+            uploadMsg.innerHTML = `Upload ${input.name}?`
+        }
+    };
+
+    let uploadBtn = document.getElementById("uploadBtn");
+    uploadBtn.onclick = async function (){
+        if(!input){
+            uploadMsg.innerHTML = 'No File Selected'
+            return;
+        }
+        uploadMsg.innerHTML = 'Getting s3 upload credentials...'
+        let params = await presign_upload({
+            file_name: input.name
+        })
+        console.log(params)
+        uploadMsg.innerHTML = `Uploading ${input.name} ...`
+    }
 
 
-    fetch('https://example.com/profile', {
-    method: 'POST', // or 'PUT'
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-    })
-    .then((response) => response.json())
-    .then((data) => {
-        console.log('Success:', data);
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    const presign_upload = function(file_data){
+        return new Promise((resolve, reject)=>{
+                fetch('/presigned', {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(file_data)
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log('Success:', data);
+                return resolve(data)
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                return reject(data)
+            });
+        })
+    }
+
+    const upload_file_to_s3 = (params, file) => {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+
+            const data = new URLSearchParams();
+            for (const pair of formData) {
+                data.append(pair[0], pair[1]);
+            }
+
+
+            Object.keys(presignedPostData.fields).forEach(key => {
+            formData.append(key, presignedPostData.fields[key]);
+            });
+
+            
+            // Actual file has to be appended last.
+            formData.append("file", file);
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", presignedPostData.url, true);
+            xhr.send(formData);
+            xhr.onload = function() {
+            this.status === 204 ? resolve() : reject(this.responseText);
+            };
+        });
+    };
 
     
 })();
