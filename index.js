@@ -23,9 +23,6 @@ const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const BUCKET_NAME = "cyclic-fair-ruby-clam-cuff-us-east-1";
-const Fields = {
-  acl: "public-read",
-};
 
 const REGION = "us-east-1";
 
