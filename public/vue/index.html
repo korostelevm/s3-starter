@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vue.js Single-File JavaScript Component Demo</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+
+  <div id="app">
+    {{message}}
+    <button @click="btn">asdf</button>
+    
+  </div>
+  
+  <script>
+    const { createApp } = Vue
+    createApp({
+      data() {
+        return {
+          message: 'Hello Vue!'
+        }
+      },
+      methods:{
+        btn(){
+          console.log('asdf')
+        }
+      }
+    }).mount('#app')
+  </script>
+
+
+
+  
+</body>
+</html>

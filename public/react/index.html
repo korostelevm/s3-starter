@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>React Example</title>
+<style>
+   .player{
+      border:1px solid #eee;
+      width:200px;
+      box-shadow:0 2px 2px #ccc;
+      padding: 22px;
+      display:inline-block;
+      margin:10px;
+   }
+</style>
+</head>
+<body>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<!-- Load React. -->
+<!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+<div id="first"></div>
+<div class="player">
+<h1>David</h1>
+<p>My hobby: Cricket</p>
+</div>
+<script type="text/babel">
+   function Player(){
+      return(
+         <div className="player">
+            <h1>Steve</h1>
+            <p>My hobby: Cricket</p>
+         </div>
+      );
+   }
+   ReactDOM.render(<Player/>,document.querySelector('#first'));
+</script>
+</body>
+</html>
