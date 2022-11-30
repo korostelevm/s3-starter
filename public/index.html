@@ -37,8 +37,10 @@
             return;
         }
         uploadMsg.innerHTML = 'Getting s3 upload credentials...'
+        console.log(file)
         let params = await presign_upload({
-            file_name: file.name
+            name: file.name,
+            type: file.type
         })
         console.log(params)
         uploadMsg.innerHTML = `Uploading ${file.name} ...`
@@ -63,7 +65,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error);
-                return reject(data)
+                return reject(error)
             });
         })
     }
@@ -86,7 +88,7 @@
                 return resolve(data)
             })
             .catch((error) => {
-                return reject(data)
+                return reject(error)
             });
         });
     };
@@ -94,7 +96,7 @@
 
     const get_bucket_files = () => {
         return new Promise((resolve, reject)=>{
-            fetch('/list_uploads', {
+            fetch('/list_uploads/presigned', {
                 method: 'GET', 
                 headers: {
                     'Content-Type': 'application/json',
@@ -106,17 +108,31 @@
                 uploads_list.innerHTML = ''
 
                 uploads.forEach(f=>{
-                    let download = document.createElement('div');
-                    download.innerHTML = f.Key
+                    let file_row = document.createElement('div');
+
+                    if(['png','jpeg','jpg', 'gif', '.svg'].includes(f.Key.split('.').at(-1))){
+                        let image = document.createElement('img');
+                        image.src = f.presigned_url
+                        image.width = '200'
+                        uploads_list.appendChild(image)
+                    }
+
+                    let file_name = document.createElement('div');
+                    file_name.innerHTML = f.Key
+
+                    let download = document.createElement('button');
+                    download.innerHTML = 'download'
                     download.onclick = function() {
                         return download_file(f)
                     }
-                    let del = document.createElement('div');
+                    let del = document.createElement('button');
                     del.innerHTML = 'delete'
                     del.onclick = function() {
                         return delete_file(f)
                     }
 
+                    
+                    uploads_list.appendChild(file_name)
                     uploads_list.appendChild(download)
                     uploads_list.appendChild(del)
                 })
@@ -124,7 +140,7 @@
             })
             .catch((error) => {
                 console.error('Error:', error);
-                return reject(data)
+                return reject(error)
             });
         })
     };
@@ -141,13 +157,21 @@
             .then((response) => response.json())
             .then((data) => {
                 console.log('Success:', data);
-                window.location.assign(data.download_url);
+                // window.location.assign(data.download_url);
+
+                var dlink = document.createElement('a');
+                dlink.target = '_blank';
+                dlink.download = f.Key;
+                dlink.href = data.download_url
+                dlink.click()
+                dlink.remove();
+
 
                 return resolve(data)
             })
             .catch((error) => {
                 console.error('Error:', error);
-                return reject(data)
+                return reject(error)
             });
         })
     }
@@ -164,12 +188,12 @@
             .then((response) => response.json())
             .then((data) => {
                 console.log('deleted')
-                // await get_bucket_files()
+                get_bucket_files()
                 return resolve(data)
             })
             .catch((error) => {
                 console.error('Error:', error);
-                return reject(data)
+                return reject(error)
             });
         })
     }

@@ -20,7 +20,7 @@ app.use(express.static("public", options));
 
 const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
-const { S3Client, ListObjectsCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 const BUCKET_NAME = "cyclic-fair-ruby-clam-cuff-us-east-1";
 const Fields = {
@@ -32,10 +32,14 @@ const REGION = "us-east-1";
 const s3 = new S3Client({ region: REGION });
 
 router.post("/presigned", async (req, res) => {
-    const file_name = req.body.file_name
+    const file_name = req.body.name
+    const file_type = req.body.type
     const { url, fields } = await createPresignedPost(s3, {
         Bucket: BUCKET_NAME,
         Key: `uploads/${file_name}`,
+        Fields : {
+            'Content-Type': file_type
+        }
     });
 
   return res.json({
@@ -56,20 +60,38 @@ router.post("/download", async (req, res) => {
 
 router.post("/delete", async (req, res) => {
     let key = req.body.Key
-    let download_url = await getSignedUrl(s3, new GetObjectCommand({
+    let result = await s3.send(new DeleteObjectCommand({
             Bucket: BUCKET_NAME,
             Key: key,
     })) 
-    console.log(download_url)
-    return res.send({download_url});
+    return res.send({result});
 });
 
 router.get("/list_uploads", async (req, res) => {
-    let bucket_data = await s3.send(new ListObjectsCommand({
+    let bucket_data = await s3.send(new ListObjectsV2Command({
         Bucket: BUCKET_NAME,
         Prefix: 'uploads'
     }));
-    let bucket_contents = bucket_data.Contents
+    let bucket_contents = bucket_data.Contents || []
+
+    return res.json(bucket_contents);
+});
+
+router.get("/list_uploads/presigned", async (req, res) => {
+    let bucket_data = await s3.send(new ListObjectsV2Command({
+        Bucket: BUCKET_NAME,
+        Prefix: 'uploads'
+    }));
+
+    let bucket_contents = bucket_data.Contents || []
+    bucket_contents = await Promise.all(bucket_contents.map(async f=>{
+        f.presigned_url = await getSignedUrl(s3, new GetObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: f.Key,
+        })) 
+        return f
+    }))
+
     return res.json(bucket_contents);
 });
 
