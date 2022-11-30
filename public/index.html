@@ -107,9 +107,6 @@
         return new Promise((resolve, reject)=>{
             fetch('/list_uploads/presigned', {
                 method: 'GET', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
             })
             .then((response) => response.json())
             .then((uploads) => {

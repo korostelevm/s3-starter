@@ -19,21 +19,26 @@
 <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
 <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-<div id="first"></div>
-<div class="player">
-<h1>David</h1>
-<p>My hobby: Cricket</p>
-</div>
+<div id="app"></div>
 <script type="text/babel">
-   function Player(){
+   function Player(props){
+      //it returns the reusable code that
+      //we want to render on actual html page
       return(
+         //we are adding the first player div info
          <div className="player">
-            <h1>Steve</h1>
-            <p>My hobby: Cricket</p>
+            <h1>{props.name}</h1>
+            <p>My hobby: {props.hobby}</p>
          </div>
       );
    }
-   ReactDOM.render(<Player/>,document.querySelector('#first'));
+   var app= (
+      <div>
+         <Player name="Steve" hobbey="Cricket"/>
+         <Player name="David" hobbey="Cricket"/>
+      </div>
+   );
+   ReactDOM.render(app,document.querySelector('#app'));
 </script>
 </body>
 </html>

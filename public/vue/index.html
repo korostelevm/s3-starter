@@ -3,11 +3,24 @@
 <head>
   <title>Vue.js Single-File JavaScript Component Demo</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
 
   <div id="app">
     {{message}}
+
+    <input id="imageUpload" type="file" @change="input_file=$event.target.files[0]"/>
+
+    <div>{{uploadMsg}}</div>
+    <button @click="upload_file">Upload</button>
+    <div v-for="f of files" :key="f.Key">
+      {{f.Key}}
+      <img
+      v-if="['png','jpeg','jpg', 'gif', '.svg'].includes(f.Key.split('.').at(-1))"
+      :src="f.presigned_url"
+      />
+    </div>
     <button @click="btn">asdf</button>
     
   </div>
@@ -17,18 +30,32 @@
     createApp({
       data() {
         return {
-          message: 'Hello Vue!'
+          files: [],
+          uploadMsg: null,
+          input_file: null
         }
       },
+      mounted(){
+        this.get_bucket_files()
+      },
       methods:{
-        btn(){
-          console.log('asdf')
-        }
+        async get_bucket_files(){
+          this.files = (await axios.get('/list_uploads/presigned')).data
+        },
+        async upload_file(){
+          console.log(this.input_file)
+        },
+        async delete_file(){
+        },
+        async download_file(){
+        },
+        async presign_upload(file_data){
+        },
+        async upload_file_to_s3(params, file){
+        },
       }
     }).mount('#app')
   </script>
-
-
 
   
 </body>
