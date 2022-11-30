@@ -3,7 +3,7 @@
 <head>
 <title>React Example</title>
 <style>
-   .player{
+   .file{
       border:1px solid #eee;
       width:200px;
       box-shadow:0 2px 2px #ccc;
@@ -21,21 +21,21 @@
 <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
 <div id="app"></div>
 <script type="text/babel">
-   function Player(props){
+   function File(props){
       //it returns the reusable code that
       //we want to render on actual html page
       return(
          //we are adding the first player div info
-         <div className="player">
+         <div className="file">
             <h1>{props.name}</h1>
-            <p>My hobby: {props.hobby}</p>
+            <p>url: {props.hobby}</p>
          </div>
       );
    }
    var app= (
       <div>
-         <Player name="Steve" hobbey="Cricket"/>
-         <Player name="David" hobbey="Cricket"/>
+         <File name="aaa.png" url="sadfasdfasf/aaa.png"/>
+         <File name="bbb.png" url="sadfasdfasf/bbb.png"/>
       </div>
    );
    ReactDOM.render(app,document.querySelector('#app'));
