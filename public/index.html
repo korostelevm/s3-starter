@@ -1,6 +1,29 @@
 <!doctype html>
 <html>
 <head>
+    <style>
+        body{
+            font-family: sans-serif;;
+        }
+        .file_row{
+            display:grid;
+            grid-template-columns: 200px 300px 100px 100px;
+            grid-column-gap: 10px;;
+            margin: 20px;
+            align-items: center;
+        }
+        .btn{
+            background-color: orange;
+            cursor: pointer;
+            padding: 5px;
+            max-height: 25px;;
+            text-align: center;;
+            transition: all 0.3s;
+        }
+        .btn:hover{
+            filter: invert(1)
+        }
+    </style>
 </head>
 <body>
     
@@ -115,32 +138,37 @@
 
                 uploads.forEach(f=>{
                     let file_row = document.createElement('div');
+                    file_row.className = 'file_row'
 
+                    let image = document.createElement('img');
                     if(['png','jpeg','jpg', 'gif', '.svg'].includes(f.Key.split('.').at(-1))){
-                        let image = document.createElement('img');
                         image.src = f.presigned_url
+                        image.className = 'thumbnail'
                         image.width = '200'
-                        uploads_list.appendChild(image)
                     }
 
                     let file_name = document.createElement('div');
                     file_name.innerHTML = f.Key
 
-                    let download = document.createElement('button');
+                    let download = document.createElement('div');
+                    download.className = 'btn'
                     download.innerHTML = 'download'
                     download.onclick = function() {
                         return download_file(f)
                     }
-                    let del = document.createElement('button');
+                    let del = document.createElement('div');
+                    del.className = 'btn'
                     del.innerHTML = 'delete'
                     del.onclick = function() {
                         return delete_file(f)
                     }
 
                     
-                    uploads_list.appendChild(file_name)
-                    uploads_list.appendChild(download)
-                    uploads_list.appendChild(del)
+                    file_row.appendChild(image)
+                    file_row.appendChild(file_name)
+                    file_row.appendChild(download)
+                    file_row.appendChild(del)
+                    uploads_list.appendChild(file_row)
                 })
                 return resolve()
             })

@@ -89,6 +89,9 @@ router.get("/list_uploads/presigned", async (req, res) => {
         return f
     }))
 
+    bucket_contents = bucket_contents.sort((a,b) => b.LastModified - a.LastModified);
+
+
     return res.json(bucket_contents);
 });
 
