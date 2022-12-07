@@ -25,7 +25,7 @@ const { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand } 
 const BUCKET_NAME =  process.env.BUCKET_NAME || "cyclic-fair-ruby-clam-cuff-us-east-1";
 
 const REGION = process.env.AWS_REGION || "us-east-1";
-
+ 
 const s3 = new S3Client({ region: REGION });
 
 router.post("/presigned", async (req, res) => {
