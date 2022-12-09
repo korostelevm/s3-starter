@@ -28,6 +28,8 @@ const REGION = process.env.AWS_REGION || "us-east-1";
  
 const s3 = new S3Client({ region: REGION });
 
+
+
 router.post("/presigned", async (req, res) => {
     const file_name = req.body.name
     const file_type = req.body.type
@@ -74,11 +76,34 @@ router.get("/list_uploads", async (req, res) => {
     return res.json(bucket_contents);
 });
 
+// var deasync = require('deasync');
+
+function s3_list_sync(){
+    let done = false;
+    let result = null;
+    s3.send(new ListObjectsV2Command({
+            Bucket: BUCKET_NAME,
+            Prefix: 'uploads'
+    })).then((res)=>{
+        result = res;
+    });
+    require('deasync').loopWhile(function(){return !result;});
+    return result
+}
+
 router.get("/list_uploads/presigned", async (req, res) => {
-    let bucket_data = await s3.send(new ListObjectsV2Command({
-        Bucket: BUCKET_NAME,
-        Prefix: 'uploads'
-    }));
+    
+    // let bucket_data =  await s3.send(new ListObjectsV2Command({
+    //     Bucket: BUCKET_NAME,
+    //     Prefix: 'uploads'
+    // }));
+    
+    let bucket_data = s3_list_sync()
+    console.log('done');
+    // let bucket_data = await s3.send(new ListObjectsV2Command({
+    //     Bucket: BUCKET_NAME,
+    //     Prefix: 'uploads'
+    // }));
 
     let bucket_contents = bucket_data.Contents || []
     bucket_contents = await Promise.all(bucket_contents.map(async f=>{
