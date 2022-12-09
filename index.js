@@ -22,7 +22,7 @@ const { createPresignedPost } = require("@aws-sdk/s3-presigned-post");
 const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 const { S3Client, ListObjectsV2Command, GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
-const BUCKET_NAME =  process.env.BUCKET_NAME || "cyclic-fair-ruby-clam-cuff-us-east-1";
+const BUCKET_NAME =  process.env.CYCLIC_BUCKET_NAME || "cyclic-fair-ruby-clam-cuff-us-east-1";
 
 const REGION = process.env.AWS_REGION || "us-east-1";
  
