@@ -1,245 +1,271 @@
 <!doctype html>
 <html>
-<head>
+  <head>
     <style>
-        body{
-            font-family: sans-serif;;
-        }
-        .file_row{
-            display:grid;
-            grid-template-columns: 200px 300px 100px 100px;
-            grid-column-gap: 10px;;
-            margin: 20px;
-            align-items: center;
-        }
-        .btn{
-            background-color: orange;
-            cursor: pointer;
-            padding: 5px;
-            max-height: 25px;;
-            text-align: center;;
-            transition: all 0.3s;
-        }
-        .btn:hover{
-            filter: invert(1)
-        }
-        img{
-            border: 1px solid black;
-        }
+      body {
+        font-family: sans-serif;
+        background-color: #363636
+      }
+
+      * {
+        color: snow;
+      }
+
+      .page_title {
+        font-weight: bold;
+        font-size: 40px;
+        display: grid;
+        justify-items: center;
+        font-variant: all-petite-caps;
+      }
+
+      .file_row {
+        display: grid;
+        grid-template-columns: 200px 450px 150px 150px;
+        grid-column-gap: 4px;
+        margin: 20px;
+        align-items: center;
+        word-break: break-all;
+        justify-content: space-around;
+      }
+
+      a {
+        outline: none;
+        text-decoration: none;
+        padding: 2px 1px 0;
+        color: limegreen;
+      }
+
+      a:hover {
+        text-decoration: none;
+        background-color: dimgray;
+        transition: all 0.3s;
+        border-radius: 5px;
+      }
+
+      .btn {
+        background-color: orange;
+        cursor: pointer;
+        padding: 5px;
+        color: black;
+        max-height: 25px;
+        text-align: center;
+        transition: all 0.3s;
+        border-radius: 8px;
+        font-weight: bold;
+      }
+
+      .btn:hover {
+        filter: invert(1)
+      }
+
+      img {
+        border: 1px solid black;
+      }
+
+      .img_name {
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .uploadDiv {
+        display: grid;
+        padding: 10px;
+        cursor: pointer;
+        margin-left: 12px;
+        border-color: pink;
+        justify-content: start;
+      }
+
+      .uploadSubmit {
+        margin-top: 10px;
+        color: black;
+        width: 25%;
+        font-weight: bold
+      }
+
+      .uploadFail {
+        font-weight: bold;
+        padding-top: 8px;
+        justify-content: start;
+      }
+
+      ::-webkit-file-upload-button {
+        background: whitesmoke;
+        padding: 6px 6px;
+        font-weight: 600;
+        border-radius: 6px;
+      }
     </style>
-</head>
-<body>
-    
-    <h3>s3 uploader demo</h3>
+  </head>
+  <body>
+    <div class="page_title">s3 uploader demo</div>
     <h2>contribute here: <a href="https://github.com/korostelevm/s3-starter">https://github.com/korostelevm/s3-starter</a></h2>
-    <p>also see this example in:
-        <ul>
-            <li><a href="/react/">react</a></li>
-            <li><a href="/vue/">vue</a></li>
-        </ul>
-    </p>
+    <p>also see this example in: </p>
+    <ul>
+      <li><a href="/react/">react</a></li>
+      <li><a href="/vue/">vue</a></li>
+    </ul>
+    <p></p>
     <hr>
     <h3>Vanilla JS</h3>
-    <input id="imageUpload" type="file" />
-    <br>
-    <div id="uploadMsg"></div>
-    <br>
-    <button id="uploadBtn">upload</button>
-    
-    <br>
-    <br>
-    <br>
+    <div class="uploadDiv">
+      <div><input id="imageUpload" type="file"></div>
+      <div id="uploadMsg" class="uploadFail"></div><button class="uploadSubmit" id="uploadBtn">upload</button>
+    </div>
     <h3>Uploads:</h3>
     <div id="uploads_list"></div>
-
-
-<script>
-(function() {
-    let uploadMsg = document.getElementById("uploadMsg");
-
-    let file;
-    let imageUpload = document.getElementById("imageUpload");
-    imageUpload.onchange = function () {
-        file = this.files[0];
-        if(file){
+    <script>
+      (function() {
+        let uploadMsg = document.getElementById("uploadMsg");
+        let file;
+        let imageUpload = document.getElementById("imageUpload");
+        imageUpload.onchange = function() {
+          file = this.files[0];
+          if (file) {
             uploadMsg.innerHTML = `Upload ${file.name}?`
-        }
-    };
-
-    let uploadBtn = document.getElementById("uploadBtn");
-    uploadBtn.onclick = async function (){
-        if(!file){
+          }
+        };
+        let uploadBtn = document.getElementById("uploadBtn");
+        uploadBtn.onclick = async function() {
+          if (!file) {
             uploadMsg.innerHTML = 'No File Selected'
             return;
-        }
-        uploadMsg.innerHTML = 'Getting s3 upload credentials...'
-        console.log(file)
-        let params = await presign_upload({
+          }
+          uploadMsg.innerHTML = 'Getting s3 upload credentials...'
+          console.log(file)
+          let params = await presign_upload({
             name: file.name,
             type: file.type
-        })
-        console.log(params)
-        uploadMsg.innerHTML = `Uploading ${file.name} ...`
-        await upload_file_to_s3(params, file)
-        await get_bucket_files()
-    }
-
-
-    const presign_upload = function(file_data){
-        return new Promise((resolve, reject)=>{
+          })
+          console.log(params)
+          uploadMsg.innerHTML = `Uploading ${file.name} ...`
+          await upload_file_to_s3(params, file)
+          await get_bucket_files()
+        }
+        const presign_upload = function(file_data) {
+          return new Promise((resolve, reject) => {
             fetch('/presigned', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(file_data)
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('Success:', data);
-                return resolve(data)
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                return reject(error)
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(file_data)
+            }).then((response) => response.json()).then((data) => {
+              console.log('Success:', data);
+              return resolve(data)
+            }).catch((error) => {
+              console.error('Error:', error);
+              return reject(error)
             });
-        })
-    }
-
-    const upload_file_to_s3 = (params, file) => {
-        return new Promise((resolve, reject) => {
+          })
+        }
+        const upload_file_to_s3 = (params, file) => {
+          return new Promise((resolve, reject) => {
             const formData = new FormData();
             Object.keys(params.fields).forEach(key => {
-                formData.append(key, params.fields[key]);
+              formData.append(key, params.fields[key]);
             });
             formData.append("file", file);
-
             fetch(params.url, {
-                method: 'POST', 
-                mode: 'no-cors',
-                body: formData
-            })
-            .then((data) => {
-                uploadMsg.innerHTML = `Uploaded ${file.name} Successfully.`
-                return resolve(data)
-            })
-            .catch((error) => {
-                return reject(error)
+              method: 'POST',
+              mode: 'no-cors',
+              body: formData
+            }).then((data) => {
+              uploadMsg.innerHTML = `Uploaded ${file.name} Successfully.`
+              return resolve(data)
+            }).catch((error) => {
+              return reject(error)
             });
-        });
-    };
-
-
-    const get_bucket_files = () => {
-        return new Promise((resolve, reject)=>{
+          });
+        };
+        const get_bucket_files = () => {
+          return new Promise((resolve, reject) => {
             fetch('/list_uploads/presigned', {
-                method: 'GET', 
-            })
-            .then((response) => response.json())
-            .then((uploads) => {
-                let uploads_list = document.getElementById("uploads_list");
-                uploads_list.innerHTML = ''
-
-                uploads.forEach(f=>{
-                    let file_row = document.createElement('div');
-                    file_row.className = 'file_row'
-
-                    let image = document.createElement('img');
-                    if(['png','jpeg','jpg', 'gif', '.svg'].includes(f.Key.split('.').at(-1))){
-                        image.src = f.presigned_url
-                        image.className = 'thumbnail'
-                        image.width = '200'
-                    }
-
-                    let file_name = document.createElement('div');
-                    file_name.innerHTML = f.Key
-
-                    let download = document.createElement('div');
-                    download.className = 'btn'
-                    download.innerHTML = 'download'
-                    download.onclick = function() {
-                        return download_file(f)
-                    }
-                    let del = document.createElement('div');
-                    del.className = 'btn'
-                    del.innerHTML = 'delete'
-                    del.onclick = function() {
-                        return delete_file(f)
-                    }
-
-                    
-                    file_row.appendChild(image)
-                    file_row.appendChild(file_name)
-                    file_row.appendChild(download)
-                    file_row.appendChild(del)
-                    uploads_list.appendChild(file_row)
-                })
-                return resolve()
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                return reject(error)
+              method: 'GET',
+            }).then((response) => response.json()).then((uploads) => {
+              let uploads_list = document.getElementById("uploads_list");
+              uploads_list.innerHTML = ''
+              uploads.forEach(f => {
+                let file_row = document.createElement('div');
+                file_row.className = 'file_row'
+                let image = document.createElement('img');
+                if (['png', 'jpeg', 'jpg', 'gif', '.svg'].includes(f.Key.split('.').at(-1))) {
+                  image.src = f.presigned_url
+                  image.className = 'thumbnail'
+                  image.width = '200'
+                }
+                let file_name = document.createElement('div');
+                file_name.innerHTML = f.Key
+                let download = document.createElement('div');
+                download.className = 'btn'
+                download.innerHTML = 'download'
+                download.onclick = function() {
+                  return download_file(f)
+                }
+                let del = document.createElement('div');
+                del.className = 'btn'
+                del.innerHTML = 'delete'
+                del.onclick = function() {
+                  return delete_file(f)
+                }
+                file_row.appendChild(image)
+                file_row.appendChild(file_name)
+                file_row.appendChild(download)
+                file_row.appendChild(del)
+                uploads_list.appendChild(file_row)
+              })
+              return resolve()
+            }).catch((error) => {
+              console.error('Error:', error);
+              return reject(error)
             });
-        })
-    };
-
-    const download_file = (f)=>{
-        return new Promise((resolve,reject)=>{
+          })
+        };
+        const download_file = (f) => {
+          return new Promise((resolve, reject) => {
             fetch('/download', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(f)
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('Success:', data);
-                // window.location.assign(data.download_url);
-
-                var dlink = document.createElement('a');
-                dlink.target = '_blank';
-                dlink.download = f.Key;
-                dlink.href = data.download_url
-                dlink.click()
-                dlink.remove();
-
-
-                return resolve(data)
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                return reject(error)
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(f)
+            }).then((response) => response.json()).then((data) => {
+              console.log('Success:', data);
+              // window.location.assign(data.download_url);
+              var dlink = document.createElement('a');
+              dlink.target = '_blank';
+              dlink.download = f.Key;
+              dlink.href = data.download_url
+              dlink.click()
+              dlink.remove();
+              return resolve(data)
+            }).catch((error) => {
+              console.error('Error:', error);
+              return reject(error)
             });
-        })
-    }
-
-    const delete_file = (f)=>{
-        return new Promise((resolve,reject)=>{
+          })
+        }
+        const delete_file = (f) => {
+          return new Promise((resolve, reject) => {
             fetch('/delete', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(f)
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('deleted')
-                get_bucket_files()
-                return resolve(data)
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                return reject(error)
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(f)
+            }).then((response) => response.json()).then((data) => {
+              console.log('deleted')
+              get_bucket_files()
+              return resolve(data)
+            }).catch((error) => {
+              console.error('Error:', error);
+              return reject(error)
             });
-        })
-    }
-
-
-    get_bucket_files()
-    
-})();
-</script>
-</body>
+          })
+        }
+        get_bucket_files()
+      })();
+    </script>
+  </body>
 </html>
