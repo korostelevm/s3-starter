@@ -1,4 +1,6 @@
 # s3-starter
+### Demo:
+https://fair-ruby-clam-cuff.cyclic.app/
 
 Cyclic S3 file management example:
 - upload - using s3 presigned POST
@@ -11,8 +13,8 @@ Includes:
   - API for s3 ops
 - Frontends implemented in:
   - Vanilla JS
-  - Vue
-  - React  
+  - Vue (WIP)
+  - React (WIP) 
 
 ```
 ```
